@@ -6,7 +6,7 @@
 |---|---|
 | 项目名 | `dsh-tool-firecrawl` |
 | 定位 | DeepSeek Harness 的 Firecrawl 网页抓取插件 |
-| 版本 | v0.1.0 |
+| 版本 | v0.2.0 |
 | 架构 | Cordis 插件 + `ctx.tools.register(defineTool(...))` |
 | API | Firecrawl v2 Public REST API（`https://api.firecrawl.dev/v2`） |
 | 认证 | `Authorization: Bearer` 请求头，密钥从环境变量读取 |
@@ -65,3 +65,7 @@ npm pack --dry-run
 - 增加结构化抽取（extract）与批量抓取（batch scrape）工具。
 - 增加 crawl 错误明细查询（Get Crawl Errors）。
 - 按 Firecrawl API 版本变化补充兼容性测试。
+
+## endpoint 安全校验
+
+`baseUrl` 规范化为 origin + 路径前缀，禁止 credentials、query 和 fragment。每次请求前用 `src/url-security.ts` 做 fail-closed 目标校验：拒绝 localhost/.local 名称、环回、私有、链路本地、CGNAT、组播、保留及全部 IANA 特殊用途地址段，域名 DNS 结果含任一此类地址即拒绝。阻断清单（18 个 IPv4 + 16 个 IPv6）与 IANA 注册表对齐，`src/url-security.ts` 由 `.verify/url-security.template.ts` 生成，不得单独修改。`lookupImpl` 仅作测试注入点，不进入插件配置接口。

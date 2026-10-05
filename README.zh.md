@@ -24,6 +24,8 @@ npm install @libai168/dsh-tool-firecrawl
 
 插件从 `apiKeyEnv` 指定的环境变量读取 Firecrawl API Key（默认是 `FIRECRAWL_API_KEY`）。不要把可用密钥写入源码、示例、测试或提交的配置文件。密钥在 Firecrawl 控制台创建，并只授予部署所需的访问权限。
 
+`baseUrl` 覆盖 必须是绝对的 `http://` 或 `https://` 根地址。只允许公网可达主机：localhost、环回、私有、链路本地、CGNAT、组播、保留/文档/基准测试网段以及全部 IANA 特殊用途地址段都会被拒绝；DNS 结果包含任一此类地址时会在发出请求前 fail closed。不允许 credentials、query、fragment 或非根路径。
+
 ## 工具
 
 | 工具 | 说明 | 写操作 |

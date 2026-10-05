@@ -3,7 +3,11 @@ import { describe, expect, it } from 'vitest'
 import { FirecrawlClient } from '../src/client.ts'
 import { createTools } from '../src/index.ts'
 
-const clientForTest = () => new FirecrawlClient({ apiKey: process.env.FIRECRAWL_TEST_API_KEY ?? randomUUID() })
+/** Deterministic DNS so tests never depend on real resolution. */
+const publicLookup = async () => [{ address: '93.184.216.34', family: 4 as const }]
+
+
+const clientForTest = () => new FirecrawlClient({ lookupImpl: publicLookup, apiKey: process.env.FIRECRAWL_TEST_API_KEY ?? randomUUID() })
 
 describe('dsh-tool-firecrawl tools', () => {
   it('registers the Firecrawl tool set', () => {

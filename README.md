@@ -24,6 +24,8 @@ Requires `@deepseek-ai/cordis` (^4.0.1) and `@deepseek-ai/dsh-tools` (^0.1.0-rc.
 
 The plugin reads the Firecrawl API key from the environment variable named by `apiKeyEnv` (default: `FIRECRAWL_API_KEY`). Do not put a usable key in source, examples, tests, or committed configuration. Create the key in the Firecrawl dashboard and grant only the access your deployment needs.
 
+The `baseUrl` override must be an absolute `http://` or `https://` root URL. Only publicly reachable hosts are allowed: localhost, loopback, private, link-local, CGNAT, multicast, reserved/documentation/benchmark ranges, and every IANA special-purpose block are rejected, and a hostname whose DNS results contain any such address fails closed before the request is sent. Credentials, query strings, fragments, and non-root paths are not allowed.
+
 ## Tools
 
 | Tool | Description | Write |

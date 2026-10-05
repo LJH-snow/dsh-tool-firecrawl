@@ -1,7 +1,7 @@
 {
   "name": "@libai168/dsh-tool-firecrawl",
   "description": "Firecrawl web scraping tools for DeepSeek Harness: page scraping, site mapping, web search, and crawl job controls",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "type": "module",
   "main": "lib/index.js",
   "types": "lib/types/index.d.ts",

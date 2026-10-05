@@ -1,5 +1,7 @@
 /** Firecrawl v2 REST API client with injected fetch for testability. */
 
+import { assertSafeUrl, EndpointSecurityError, normalizeBaseUrl, type LookupImpl } from './url-security.js'
+
 export interface FirecrawlClientOptions {
   /** Firecrawl API host root, for example https://api.firecrawl.dev. */
   baseUrl?: string
@@ -8,6 +10,8 @@ export interface FirecrawlClientOptions {
   /** HTTP request timeout in milliseconds. 0 disables the timeout. */
   timeoutMs?: number
   fetchImpl?: typeof fetch
+  /** Test-only DNS lookup override; production uses node:dns/promises. */
+  lookupImpl?: LookupImpl
 }
 
 export class FirecrawlError extends Error {
@@ -140,12 +144,19 @@ export class FirecrawlClient {
   private readonly apiKey: string
   private readonly timeoutMs: number
   private readonly fetchImpl: typeof fetch
+  private readonly lookupImpl: LookupImpl | undefined
 
   constructor(options: FirecrawlClientOptions = {}) {
-    this.baseUrl = (options.baseUrl ?? 'https://api.firecrawl.dev').replace(/\/+$/, '')
+    try {
+      this.baseUrl = normalizeBaseUrl(options.baseUrl, 'https://api.firecrawl.dev')
+    } catch (error) {
+      if (error instanceof EndpointSecurityError) throw new FirecrawlError(error.message, 400)
+      throw error
+    }
     this.apiKey = options.apiKey ?? ''
     this.timeoutMs = options.timeoutMs ?? 120000
     this.fetchImpl = options.fetchImpl ?? globalThis.fetch
+    this.lookupImpl = options.lookupImpl
   }
 
   hasCredentials(): boolean {
@@ -163,6 +174,12 @@ export class FirecrawlClient {
   ): Promise<T> {
     if (!this.hasCredentials()) throw new FirecrawlError('Firecrawl API key not configured.', 401)
     const url = /^https?:\/\//i.test(pathOrUrl) ? new URL(pathOrUrl) : new URL(`${this.baseUrl}${pathOrUrl}`)
+    try {
+      await assertSafeUrl(url, this.lookupImpl)
+    } catch (error) {
+      if (error instanceof EndpointSecurityError) throw new FirecrawlError(error.message, 400)
+      throw error
+    }
     const headers: Record<string, string> = {
       accept: 'application/json',
       authorization: `Bearer ${this.apiKey}`,
